@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* Custom Glassmorphism & Sky Design System */
+.sky-glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 30px 80px rgba(7, 24, 56, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset 0 -10px 30px rgba(0, 102, 204, 0.15);
+}
+
+.sky-glass-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sky-glass-pill {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 25px rgba(0, 80, 180, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+.sky-button-primary {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sky-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(56, 189, 248, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+/* Cloud Drift Animation */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-12px) scale(1.02); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(10px) scale(0.98); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 10s ease-in-out infinite;
+}
+
+/* Stippled Cloud Pattern for Footer (Matching waitlist.png) */
+.footer-cloud-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1.5px, transparent 1.5px);
+  background-size: 12px 12px;
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 25, 46, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}

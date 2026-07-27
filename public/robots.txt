@@ -1,0 +1,8 @@
+# Project SKY SEO Robots Configuration
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/admin
+
+# Sitemap Location
+Sitemap: https://sky-ai.vercel.app/sitemap.xml
