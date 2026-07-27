@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ArrowRight, CheckCircle2, Mail, Loader2 } from 'lucide-react';
+import { X, ArrowRight, CheckCircle2, Mail, Loader2, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { registerWaitlistEmail } from '../services/waitlistService';
 
@@ -14,16 +14,27 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
   const [loading, setLoading] = useState(false);
   const [ticketNum, setTicketNum] = useState<number>(1001);
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string>('');
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) return;
+    setValidationError('');
+
+    if (!email || !email.includes('@')) {
+      setValidationError('Please enter a valid email address.');
+      return;
+    }
 
     setLoading(true);
     const res = await registerWaitlistEmail(email, 'modal');
     setLoading(false);
+
+    if (!res.success) {
+      setValidationError(res.error || 'Invalid email address.');
+      return;
+    }
 
     setTicketNum(res.ticket_number);
     setIsDuplicate(!!res.isDuplicate);
@@ -67,11 +78,23 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (validationError) setValidationError('');
+                  }}
                   placeholder="name@example.com"
-                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/15 border border-white/30 text-white placeholder-sky-100/50 text-sm focus:outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-400/40"
+                  className={`w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/15 border text-white placeholder-sky-100/50 text-sm focus:outline-none focus:ring-2 backdrop-blur-md shadow-inner transition-all ${
+                    validationError ? 'border-rose-400/80 focus:border-rose-400 focus:ring-rose-400/30' : 'border-white/30 focus:border-sky-300 focus:ring-sky-400/40'
+                  }`}
                 />
               </div>
+
+              {validationError && (
+                <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-400/40 text-rose-200 text-xs font-medium flex items-center gap-2 text-left animate-in fade-in duration-200">
+                  <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                  <span>{validationError}</span>
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -81,7 +104,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Saving to database...</span>
+                    <span>Verifying email...</span>
                   </>
                 ) : (
                   <>

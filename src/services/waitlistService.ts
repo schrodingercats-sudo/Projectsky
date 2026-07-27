@@ -1,5 +1,5 @@
 // =====================================================
-// PROJECT SKY WAITLIST & CMS SERVICE (MySQL & Serverless Bridge)
+// PROJECT SKY WAITLIST & CMS SERVICE (MySQL & Real Email Validation)
 // =====================================================
 
 export interface Subscriber {
@@ -13,26 +13,94 @@ export interface Subscriber {
 
 const STORAGE_KEY = 'sky_waitlist_subscribers_v1';
 
-// Seed initial demo subscribers if empty
-const getInitialSubscribers = (): Subscriber[] => {
-  return [
-    { id: 1, ticket_number: 1001, email: 'alex.dev@sky.ai', status: 'approved', source: 'website', created_at: '2026-07-25T10:00:00Z' },
-    { id: 2, ticket_number: 1002, email: 'sarah.engineer@gmail.com', status: 'invited', source: 'website', created_at: '2026-07-26T14:30:00Z' },
-    { id: 3, ticket_number: 1003, email: 'rohit.mehta@tech.in', status: 'pending', source: 'modal', created_at: '2026-07-27T09:15:00Z' },
-  ];
+// ─── DISPOSABLE / TEMP EMAIL DOMAIN BLACKLIST ───
+const DISPOSABLE_DOMAINS = new Set([
+  'mailinator.com',
+  '10minutemail.com',
+  'tempmail.com',
+  'temp-mail.org',
+  'guerrillamail.com',
+  'trashmail.com',
+  'yopmail.com',
+  'dispostable.com',
+  'sharklasers.com',
+  'getairmail.com',
+  'throwawaymail.com',
+  'fakeinbox.com',
+  'tempmail.net',
+  'maildrop.cc',
+  'nada.ltd',
+  'mohmal.com',
+  'tempail.com',
+  'byom.de',
+  'crazymailing.com',
+  'disposablemail.com',
+  'dropmail.me',
+  'mailnesia.com',
+  'mytrashmail.com',
+  'spambox.us',
+  'trashmail.net',
+  'binkmail.com',
+  'safetymail.info',
+  '0815.ru',
+  '10minutemail.co.uk',
+  'getnada.com'
+]);
+
+// Block obvious test/fake emails
+const FAKE_PATTERNS = [
+  'test@test.com',
+  'a@b.com',
+  'asdf@asdf.com',
+  'foo@bar.com',
+  'admin@admin.com',
+  'xyz@xyz.com',
+  '123@123.com'
+];
+
+export interface EmailValidationResult {
+  isValid: boolean;
+  error?: string;
+}
+
+// ─── STRICT REAL EMAIL VALIDATION ENGINE ───
+export const validateRealEmail = (email: string): EmailValidationResult => {
+  const clean = email.trim().toLowerCase();
+
+  // Basic regex check
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!clean || !emailRegex.test(clean)) {
+    return { isValid: false, error: 'Please enter a valid email address (e.g., name@gmail.com).' };
+  }
+
+  // Check pattern blacklists
+  if (FAKE_PATTERNS.includes(clean)) {
+    return { isValid: false, error: 'Please provide a valid personal or work email address.' };
+  }
+
+  // Domain extraction
+  const domain = clean.split('@')[1];
+  if (!domain) {
+    return { isValid: false, error: 'Invalid email domain.' };
+  }
+
+  // Check disposable domain blacklist
+  if (DISPOSABLE_DOMAINS.has(domain)) {
+    return { isValid: false, error: 'Temporary or disposable email addresses are not allowed.' };
+  }
+
+  return { isValid: true };
 };
 
 export const getSubscribersFromStorage = (): Subscriber[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) {
-      const initial = getInitialSubscribers();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-      return initial;
+      return []; // Clean empty database for production
     }
     return JSON.parse(data);
   } catch (e) {
-    return getInitialSubscribers();
+    return [];
   }
 };
 
@@ -45,10 +113,19 @@ export const saveSubscribersToStorage = (list: Subscriber[]) => {
 };
 
 // ─── PUBLIC WAITLIST REGISTRATION ───
-export const registerWaitlistEmail = async (email: string, source = 'website'): Promise<{ success: boolean; ticket_number: number; isDuplicate?: boolean; position?: number }> => {
+export const registerWaitlistEmail = async (
+  email: string, 
+  source = 'website'
+): Promise<{ success: boolean; ticket_number: number; isDuplicate?: boolean; position?: number; error?: string }> => {
   const cleanEmail = email.trim().toLowerCase();
 
-  // Try Serverless MySQL API endpoint first if available
+  // 1. Run real email verification
+  const validation = validateRealEmail(cleanEmail);
+  if (!validation.isValid) {
+    return { success: false, ticket_number: 0, error: validation.error };
+  }
+
+  // 2. Try Serverless MySQL API endpoint first if available
   try {
     const res = await fetch('/api/waitlist', {
       method: 'POST',
@@ -63,7 +140,7 @@ export const registerWaitlistEmail = async (email: string, source = 'website'): 
     // API endpoint not available in local Vite dev mode without serverless backend, fallback to client store
   }
 
-  // Client-side local persistence fallback
+  // 3. Client-side local persistence fallback
   const list = getSubscribersFromStorage();
   const existing = list.find(s => s.email.toLowerCase() === cleanEmail);
   
