@@ -16,16 +16,28 @@ export function App() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
 
-  // Auto-open admin if URL hash is #admin
+  // Hidden secret access: opens only when URL hash is #admin or keypress Ctrl+Alt+A
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash === '#admin') {
         setIsAdminOpen(true);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Secret hotkey: Ctrl + Alt + A
+      if (e.ctrlKey && e.altKey && (e.key === 'a' || e.key === 'A')) {
+        setIsAdminOpen(true);
+      }
+    };
+
     checkHash();
     window.addEventListener('hashchange', checkHash);
-    return () => window.removeEventListener('hashchange', checkHash);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // 1. Initialize Lenis Smooth Scroll for Apple/Linear inertia scrolling
@@ -75,8 +87,7 @@ export function App() {
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
-  
-  const handleOpenAdmin = () => setIsAdminOpen(true);
+
   const handleCloseAdmin = () => {
     setIsAdminOpen(false);
     if (window.location.hash === '#admin') {
@@ -98,7 +109,7 @@ export function App() {
 
       {/* ─── MAIN LANDING CONTENT ─── */}
       <div className="relative z-10">
-        <Navbar onJoinClick={handleOpenModal} onAdminClick={handleOpenAdmin} />
+        <Navbar onJoinClick={handleOpenModal} />
         
         <main>
           {/* 1. HERO SECTION (#vision) */}
@@ -132,13 +143,13 @@ export function App() {
         </main>
 
         {/* 3. FOOTER SECTION */}
-        <Footer onJoinClick={handleOpenModal} onAdminClick={handleOpenAdmin} />
+        <Footer onJoinClick={handleOpenModal} />
       </div>
 
       {/* Interactive Waitlist Modal */}
       <WaitlistModal isOpen={isModalOpen} onClose={handleCloseModal} />
 
-      {/* Admin CMS Dashboard Modal */}
+      {/* Secret Admin CMS Dashboard (Hidden unless #admin or secret shortcut used) */}
       <AdminDashboard isOpen={isAdminOpen} onClose={handleCloseAdmin} />
     </div>
   );

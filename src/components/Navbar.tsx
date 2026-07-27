@@ -3,10 +3,9 @@ import { ArrowRight } from 'lucide-react';
 
 interface NavbarProps {
   onJoinClick: () => void;
-  onAdminClick?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onJoinClick, onAdminClick }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onJoinClick }) => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isHidden, setIsHidden] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
@@ -166,25 +165,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onJoinClick, onAdminClick }) => 
           </a>
         </nav>
 
-        {/* Action CTAs */}
-        <div className="flex items-center gap-2">
-          {onAdminClick && (
-            <button
-              onClick={onAdminClick}
-              className="hidden sm:flex px-3 py-2 rounded-full text-xs font-semibold text-sky-200/80 hover:text-white hover:bg-white/10 border border-white/15 transition-all"
-              title="Admin CMS Dashboard"
-            >
-              CMS Admin
-            </button>
-          )}
-          <button
-            onClick={onJoinClick}
-            className="sky-glass-pill px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white flex items-center gap-2 hover:bg-white/30 transition-all duration-300 shadow-xl shadow-sky-500/20 active:scale-95 border border-white/40 group backdrop-blur-xl"
-          >
-            <span>Join Waitlist</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+        {/* Action CTA */}
+        <button
+          onClick={onJoinClick}
+          className="sky-glass-pill px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white flex items-center gap-2 hover:bg-white/30 transition-all duration-300 shadow-xl shadow-sky-500/20 active:scale-95 border border-white/40 group backdrop-blur-xl"
+        >
+          <span>Join Waitlist</span>
+          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
       </div>
     </header>
   );

@@ -3,10 +3,9 @@ import { ArrowRight, Disc as Discord } from 'lucide-react';
 
 interface FooterProps {
   onJoinClick: () => void;
-  onAdminClick?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onJoinClick, onAdminClick }) => {
+export const Footer: React.FC<FooterProps> = ({ onJoinClick }) => {
   return (
     <footer className="relative text-white overflow-hidden border-t border-white/30 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url('/footer.jpg')` }}>
       
@@ -129,11 +128,6 @@ export const Footer: React.FC<FooterProps> = ({ onJoinClick, onAdminClick }) => 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            {onAdminClick && (
-              <button onClick={onAdminClick} className="text-sky-300 hover:text-white transition-colors font-medium">
-                Admin CMS
-              </button>
-            )}
           </div>
         </div>
 
