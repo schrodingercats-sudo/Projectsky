@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import Lenis from 'lenis';
-import { Agentation } from 'agentation';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ProductShowcase } from './components/ProductShowcase';
@@ -98,9 +97,6 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#081326] text-white relative selection:bg-sky-400/30 selection:text-sky-100 scroll-smooth overflow-x-hidden font-['Plus_Jakarta_Sans',sans-serif]">
       
-      {/* Agentation Visual Feedback Toolbar for UI/UX Feedback */}
-      <Agentation />
-
       {/* ─── BACKGROUND SCENIC ATMOSPHERE ─── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Soft Blue Atmospheric Radial Lights */}
