@@ -208,7 +208,7 @@ export const ProductShowcase: React.FC = () => {
         if (matched) {
           // Navigate iframe to the matched page
           if (iframeRef.current) {
-            const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'http://localhost:3001';
+            const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'https://sky-os-sepia.vercel.app';
             iframeRef.current.src = `${baseUrl}${matched.path}`;
           }
           setIframeInteractive(true);
@@ -241,7 +241,7 @@ export const ProductShowcase: React.FC = () => {
         };
         const target = map[lower];
         if (iframeRef.current && target) {
-          const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'http://localhost:3001';
+          const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'https://sky-os-sepia.vercel.app';
           iframeRef.current.src = `${baseUrl}${target.path}`;
         }
         setIframeInteractive(true);
@@ -681,7 +681,7 @@ export const ProductShowcase: React.FC = () => {
           <iframe
             ref={iframeRef}
             key={iframeKey}
-            src={import.meta.env.VITE_OS_DEMO_URL || "http://localhost:3001"}
+            src={import.meta.env.VITE_OS_DEMO_URL || "https://sky-os-sepia.vercel.app"}
             title="SKY Windows 11 Interactive Showcase"
             className="w-full h-full border-0 rounded-none"
             style={{ pointerEvents: iframeInteractive ? 'auto' : 'none' }}
