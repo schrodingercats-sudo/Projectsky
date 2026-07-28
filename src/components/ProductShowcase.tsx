@@ -208,7 +208,8 @@ export const ProductShowcase: React.FC = () => {
         if (matched) {
           // Navigate iframe to the matched page
           if (iframeRef.current) {
-            iframeRef.current.src = `http://localhost:3001${matched.path}`;
+            const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'http://localhost:3001';
+            iframeRef.current.src = `${baseUrl}${matched.path}`;
           }
           setIframeInteractive(true);
           const response = `Opening ${matched.label} on your desktop.`;
@@ -240,7 +241,8 @@ export const ProductShowcase: React.FC = () => {
         };
         const target = map[lower];
         if (iframeRef.current && target) {
-          iframeRef.current.src = `http://localhost:3001${target.path}`;
+          const baseUrl = import.meta.env.VITE_OS_DEMO_URL || 'http://localhost:3001';
+          iframeRef.current.src = `${baseUrl}${target.path}`;
         }
         setIframeInteractive(true);
         const response = `Opening ${target.label} on the desktop.`;
@@ -679,7 +681,7 @@ export const ProductShowcase: React.FC = () => {
           <iframe
             ref={iframeRef}
             key={iframeKey}
-            src="http://localhost:3001"
+            src={import.meta.env.VITE_OS_DEMO_URL || "http://localhost:3001"}
             title="SKY Windows 11 Interactive Showcase"
             className="w-full h-full border-0 rounded-none"
             style={{ pointerEvents: iframeInteractive ? 'auto' : 'none' }}
