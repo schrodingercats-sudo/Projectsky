@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Lenis from 'lenis';
+import { Analytics } from '@vercel/analytics/react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ProductShowcase } from './components/ProductShowcase';
@@ -147,6 +148,9 @@ export function App() {
 
       {/* Secret Admin CMS Dashboard (Hidden unless #admin or secret shortcut used) */}
       <AdminDashboard isOpen={isAdminOpen} onClose={handleCloseAdmin} />
+
+      {/* Vercel Analytics for user tracking */}
+      <Analytics />
     </div>
   );
 }
