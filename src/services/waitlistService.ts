@@ -1,6 +1,8 @@
 // =====================================================
-// PROJECT SKY WAITLIST & CMS SERVICE (MySQL & Real Email Validation)
+// PROJECT SKY WAITLIST & CMS SERVICE (Supabase + Local Storage Fallback)
 // =====================================================
+
+import { supabase } from './supabaseClient';
 
 export interface Subscriber {
   id: number;
@@ -95,9 +97,7 @@ export const validateRealEmail = (email: string): EmailValidationResult => {
 export const getSubscribersFromStorage = (): Subscriber[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) {
-      return []; // Clean empty database for production
-    }
+    if (!data) return [];
     return JSON.parse(data);
   } catch (e) {
     return [];
@@ -125,34 +125,73 @@ export const registerWaitlistEmail = async (
     return { success: false, ticket_number: 0, error: validation.error };
   }
 
-  // 2. Try Serverless MySQL API endpoint first if available
+  // 2. Direct Supabase Database Integration
   try {
-    const res = await fetch('/api/waitlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, source })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return { success: true, ticket_number: data.ticket_number, position: data.position };
+    // Check if email already registered in Supabase
+    const { data: existing, error: checkError } = await supabase
+      .from('waitlist_subscribers')
+      .select('*')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+
+    if (!checkError && existing) {
+      return { 
+        success: true, 
+        ticket_number: existing.ticket_number, 
+        isDuplicate: true, 
+        position: existing.id 
+      };
+    }
+
+    // Get current max ticket number
+    const { data: lastTicket } = await supabase
+      .from('waitlist_subscribers')
+      .select('ticket_number')
+      .order('ticket_number', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const maxTicket = lastTicket?.ticket_number || 1000;
+    const newTicket = maxTicket + 1;
+
+    // Insert subscriber into Supabase
+    const { data: inserted, error: insertError } = await supabase
+      .from('waitlist_subscribers')
+      .insert([
+        {
+          ticket_number: newTicket,
+          email: cleanEmail,
+          status: 'pending',
+          source
+        }
+      ])
+      .select()
+      .single();
+
+    if (!insertError && inserted) {
+      return { 
+        success: true, 
+        ticket_number: inserted.ticket_number, 
+        position: inserted.id 
+      };
     }
   } catch (err) {
-    // API endpoint not available in local Vite dev mode without serverless backend, fallback to client store
+    console.warn('Supabase request failed, trying client local storage fallback', err);
   }
 
-  // 3. Client-side local persistence fallback
+  // 3. Fallback to Local Storage if offline or Supabase unreachable
   const list = getSubscribersFromStorage();
-  const existing = list.find(s => s.email.toLowerCase() === cleanEmail);
+  const existingLocal = list.find(s => s.email.toLowerCase() === cleanEmail);
   
-  if (existing) {
-    return { success: true, ticket_number: existing.ticket_number, isDuplicate: true, position: existing.id };
+  if (existingLocal) {
+    return { success: true, ticket_number: existingLocal.ticket_number, isDuplicate: true, position: existingLocal.id };
   }
 
-  const maxTicket = list.reduce((max, s) => Math.max(max, s.ticket_number), 1000);
-  const newTicket = maxTicket + 1;
+  const maxTicketLocal = list.reduce((max, s) => Math.max(max, s.ticket_number), 1000);
+  const newTicketLocal = maxTicketLocal + 1;
   const newSubscriber: Subscriber = {
     id: list.length + 1,
-    ticket_number: newTicket,
+    ticket_number: newTicketLocal,
     email: cleanEmail,
     status: 'pending',
     source,
@@ -162,34 +201,36 @@ export const registerWaitlistEmail = async (
   const updated = [newSubscriber, ...list];
   saveSubscribersToStorage(updated);
 
-  return { success: true, ticket_number: newTicket, position: updated.length };
+  return { success: true, ticket_number: newTicketLocal, position: updated.length };
 };
 
 // ─── ADMIN DASHBOARD CMS FUNCTIONS ───
-export const fetchAllSubscribers = async (adminKey: string): Promise<Subscriber[]> => {
+export const fetchAllSubscribers = async (_adminKey: string): Promise<Subscriber[]> => {
   try {
-    const res = await fetch('/api/admin', {
-      headers: { 'x-admin-key': adminKey }
-    });
-    if (res.ok) {
-      return await res.json();
+    const { data, error } = await supabase
+      .from('waitlist_subscribers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      return data as Subscriber[];
     }
   } catch (err) {
-    // Fallback to local storage
+    console.warn('Supabase fetch failed, falling back to local storage', err);
   }
   return getSubscribersFromStorage();
 };
 
-export const updateSubscriberStatus = async (id: number, status: 'pending' | 'approved' | 'invited', adminKey: string): Promise<boolean> => {
+export const updateSubscriberStatus = async (id: number, status: 'pending' | 'approved' | 'invited', _adminKey: string): Promise<boolean> => {
   try {
-    const res = await fetch('/api/admin', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-      body: JSON.stringify({ id, status })
-    });
-    if (res.ok) return true;
+    const { error } = await supabase
+      .from('waitlist_subscribers')
+      .update({ status })
+      .eq('id', id);
+
+    if (!error) return true;
   } catch (err) {
-    // Fallback
+    console.warn('Supabase update failed', err);
   }
 
   const list = getSubscribersFromStorage();
@@ -202,16 +243,16 @@ export const updateSubscriberStatus = async (id: number, status: 'pending' | 'ap
   return false;
 };
 
-export const deleteSubscriber = async (id: number, adminKey: string): Promise<boolean> => {
+export const deleteSubscriber = async (id: number, _adminKey: string): Promise<boolean> => {
   try {
-    const res = await fetch('/api/admin', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-      body: JSON.stringify({ id })
-    });
-    if (res.ok) return true;
+    const { error } = await supabase
+      .from('waitlist_subscribers')
+      .delete()
+      .eq('id', id);
+
+    if (!error) return true;
   } catch (err) {
-    // Fallback
+    console.warn('Supabase delete failed', err);
   }
 
   const list = getSubscribersFromStorage();
