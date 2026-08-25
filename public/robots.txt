@@ -1,8 +1,25 @@
-# Project SKY SEO Robots Configuration
+# Project SKY SEO & AI Engine Optimization (AEO) Robots Configuration
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/admin
 
+# Explicitly allow modern AI Answer Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
 # Sitemap Location
-Sitemap: https://sky-ai.vercel.app/sitemap.xml
+Sitemap: https://projectsky-ten.vercel.app/sitemap.xml
+
