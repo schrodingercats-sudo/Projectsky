@@ -1,8 +1,18 @@
-# Project SKY SEO & AI Engine Optimization (AEO) Robots Configuration
-User-agent: *
+# Social Media Crawlers
+User-agent: Twitterbot
 Allow: /
-Disallow: /admin
-Disallow: /api/admin
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
 
 # Explicitly allow modern AI Answer Engines
 User-agent: GPTBot
