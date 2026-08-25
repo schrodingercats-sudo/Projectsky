@@ -10,7 +10,7 @@
   ],
   "headers": [
     {
-      "source": "/og-image.(jpg|png|webp)",
+      "source": "/(.*\\.(jpg|jpeg|png|webp|svg|ico|json|xml|txt))",
       "headers": [
         {
           "key": "Cache-Control",
@@ -23,15 +23,11 @@
       ]
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!.*\\.(jpg|jpeg|png|webp|svg|ico|json|xml|txt)).*)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
         },
         {
           "key": "X-XSS-Protection",
