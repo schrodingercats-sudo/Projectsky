@@ -2,21 +2,10 @@
   "version": 2,
   "framework": "vite",
   "cleanUrls": false,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/google3690ce1ff1168d6d.html",
-      "dest": "/google3690ce1ff1168d6d.html"
-    },
-    {
-      "src": "/google3690ce1ff1168d6d",
-      "dest": "/google3690ce1ff1168d6d.html"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
