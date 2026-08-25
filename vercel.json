@@ -2,10 +2,21 @@
   "version": 2,
   "framework": "vite",
   "cleanUrls": false,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/((?!.*\\.).*)",
-      "destination": "/index.html"
+      "src": "/google3690ce1ff1168d6d.html",
+      "dest": "/google3690ce1ff1168d6d.html"
+    },
+    {
+      "src": "/google3690ce1ff1168d6d",
+      "dest": "/google3690ce1ff1168d6d.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "headers": [
@@ -19,19 +30,6 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
-        }
-      ]
-    },
-    {
-      "source": "/((?!.*\\.(jpg|jpeg|png|webp|svg|ico|json|xml|txt|html)).*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
         }
       ]
     }
