@@ -10,12 +10,8 @@
   ],
   "headers": [
     {
-      "source": "/(.*\\.(jpg|jpeg|png|webp|svg|ico|json|xml|txt|html))",
+      "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        },
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
